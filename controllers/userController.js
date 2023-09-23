@@ -137,7 +137,7 @@ exports.deposit = catchAsync(async (req, res, next) => {
     date: formattedDate,
     selected_wallet,
     amount: deposit_amount,
-    payment_method: "automation",
+    payment_method: payment_method,
     payment_phone_number,
     trx_id,
     transaction_status: "pending",

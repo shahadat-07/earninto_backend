@@ -53,12 +53,18 @@ router.post("/admin/upload-game", adminController.uploadGame);
 router.put("/admin/update-result/:id", adminController.updateResult);
 router.delete("/admin/remove-game/:id", adminController.removeGame);
 router.put("/admin/update-dollar-rate", adminController.updateDollarRate);
+router.put("/admin/update-deposit-rate", adminController.uploadDepositLimit);
 router.put("/admin/update-game-rate", adminController.updateGameRate);
 router.put(
   "/admin/update-withdraw-number",
   adminController.updateWithdrawNumber
 );
+router.delete(
+  "/admin/remove-withdraw-number/:withdrawNumberId",
+  adminController.removeWithdrawNumber
+);
 router.put("/admin/upload-ads-image", adminController.uploadAdsImage);
+router.delete("/admin/remove-ad-image/:imageId", adminController.removeAdImage);
 router.put("/admin/ads-percentage", adminController.adsPercentage);
 
 router.get(

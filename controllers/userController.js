@@ -161,69 +161,77 @@ exports.deposit = catchAsync(async (req, res, next) => {
 
       // Use the findOne method to find a user by the referrerReferralID
       const referrerReferralID = user.userinformation.referrerReferralID;
-      const referrerUser = await User.findOne({
-        "userinformation.referralID": referrerReferralID,
-      });
 
-      if (!referrerUser) {
-        return next(new AppError("Refferer User not found", 404));
-      }
-      // console.log(referrerUser);
+      if (referrerReferralID) {
+        const referrerUser = await User.findOne({
+          "userinformation.referralID": referrerReferralID,
+        });
 
-      const Bonus = parseFloat(deposit_amount) * 0.15;
+        if (!referrerUser) {
+          return next(new AppError("Refferer User not found", 404));
+        }
+        // console.log(referrerUser);
 
-      // Update the fields without using save()
-      const updatedReferrerUser = await User.findOneAndUpdate(
-        { _id: referrerUser._id }, // Use the appropriate identifier for the user (e.g., _id)
-        {
-          $inc: {
-            "ads_wallet.balance": Bonus,
-            totalEarnings: Bonus,
-            totalReferralEarnings: Bonus,
+        const Bonus = parseFloat(deposit_amount) * 0.15;
+
+        // Update the fields without using save()
+        const updatedReferrerUser = await User.findOneAndUpdate(
+          { _id: referrerUser._id }, // Use the appropriate identifier for the user (e.g., _id)
+          {
+            $inc: {
+              "ads_wallet.balance": Bonus,
+              totalEarnings: Bonus,
+              totalReferralEarnings: Bonus,
+            },
+            $set: {
+              "todaysEarning.earning_from_referral": Bonus,
+            },
           },
-          $set: {
-            "todaysEarning.earning_from_referral": Bonus,
-          },
-        },
-        { new: true } // This option returns the updated document
-      );
-      if (!updatedReferrerUser) {
-        return next(new AppError("Referrer User not found", 404));
+          { new: true } // This option returns the updated document
+        );
+        if (!updatedReferrerUser) {
+          return next(new AppError("Referrer User not found", 404));
+        }
+
+        const newReffererUserTransaction = {
+          date: formattedDate,
+          selected_wallet: "ads_wallet",
+          amount: Bonus,
+          payment_method: "",
+          payment_phone_number: "",
+          trx_id: "",
+          transaction_status: "approved",
+          transaction_type: "Refferal Received",
+        };
+
+        referrerUser.transactionHistory.push(newReffererUserTransaction);
+        try {
+          await referrerUser.save();
+          // Log a success message if the save operation is successful
+          console.log("ReffererUser saved successfully.");
+        } catch (error) {
+          // Log the error if the save operation fails
+          console.error("Error saving user:", error);
+        }
+
+        const informationDB = await UploadAdmin.find();
+        // console.log(informationDB[0]);
+        informationDB[0].total_reffered_balance += Bonus;
+
+        await informationDB[0].save();
+
+        const updatedUser = await User.findById(user.id);
+
+        res.status(200).json({
+          success: true,
+          message: "Deposit Request Sent Successfully!",
+          data: updatedUser,
+        });
       }
-
-      const newReffererUserTransaction = {
-        date: formattedDate,
-        selected_wallet: "ads_wallet",
-        amount: Bonus,
-        payment_method: "",
-        payment_phone_number: "",
-        trx_id: "",
-        transaction_status: "approved",
-        transaction_type: "Refferal Received",
-      };
-
-      referrerUser.transactionHistory.push(newReffererUserTransaction);
-      try {
-        await referrerUser.save();
-        // Log a success message if the save operation is successful
-        console.log("ReffererUser saved successfully.");
-      } catch (error) {
-        // Log the error if the save operation fails
-        console.error("Error saving user:", error);
-      }
-
-      const informationDB = await UploadAdmin.find();
-      // console.log(informationDB[0]);
-      informationDB[0].total_reffered_balance += Bonus;
-
-      await informationDB[0].save();
-
-      const updatedUser = await User.findById(user.id);
 
       res.status(200).json({
         success: true,
         message: "Deposit Request Sent Successfully!",
-        data: updatedUser,
       });
     } else {
       // console.log("Not the first deposit for the user.");
@@ -343,8 +351,7 @@ exports.transferBalanceToAds = catchAsync(async (req, res, next) => {
   // Create a transaction record
   const transaction = {
     date: formattedDate,
-    from_wallet: "games_wallet",
-    to_wallet: "ads_wallet",
+    selected_wallet: "ads_wallet",
     amount: amountToTransfer,
     transaction_type: "transfer",
     transaction_status: "automation",
@@ -394,8 +401,7 @@ exports.transferBalanceToGames = catchAsync(async (req, res, next) => {
   // Create a transaction record
   const transaction = {
     date: formattedDate,
-    from_wallet: "ads_wallet",
-    to_wallet: "games_wallet",
+    selected_wallet: "games_wallet",
     amount: amountToTransfer,
     transaction_type: "transfer",
     transaction_status: "automation",

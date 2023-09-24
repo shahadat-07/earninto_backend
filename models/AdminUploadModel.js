@@ -10,6 +10,9 @@ const adminUploadSchema = new mongoose.Schema({
   game_percentage_rate: {
     type: Number,
   },
+  min_deposit_rate: {
+    type: Number,
+  },
   withdraw_numbers: [],
   ad_images: [{}],
   uploadGames: [],

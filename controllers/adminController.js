@@ -91,6 +91,7 @@ exports.uploadInformations = catchAsync(async (req, res, next) => {
     dollar_rate: 0,
     ads_percentage_rate: 0,
     game_percentage_rate: 0,
+    min_deposit_rate: 0,
     withdraw_numbers: [],
     ad_images: [],
     uploadGames: [],
@@ -251,6 +252,30 @@ exports.updateDollarRate = async (req, res, next) => {
   });
 };
 
+// Upload or Update Deposit Limit
+exports.uploadDepositLimit = async (req, res, next) => {
+  const { depositRate } = req.body;
+  // console.log(dollarRate);
+
+  // Find the informationDB document, assuming you have a method for it
+  const informationDB = await UploadAdmin.findOne();
+  // console.log(informationDB.dollar_rate);
+  if (!informationDB) {
+    return next(new AppError("Information Database Not Found!", 404));
+  }
+
+  // // Update the dollar_rate field in the document
+  informationDB.min_deposit_rate = depositRate;
+
+  // // Save the updated document
+  const updatedInformationDB = await informationDB.save();
+
+  res.status(200).json({
+    message: "Successfully updated deposit limit",
+    data: updatedInformationDB,
+  });
+};
+
 // Upload or Update Game Percentage Rate
 exports.updateGameRate = async (req, res, next) => {
   const { gamePercentageRate } = req.body;
@@ -283,7 +308,10 @@ exports.updateWithdrawNumber = async (req, res, next) => {
     return next(new AppError("Information Database Not Found!", 404));
   }
 
+  const numberId = uuid.v4();
+
   const newNumber = {
+    id: numberId,
     number: withdrawNumber,
     account_type,
     banking_method,
@@ -297,6 +325,38 @@ exports.updateWithdrawNumber = async (req, res, next) => {
 
   res.status(200).json({
     message: "Numbers Added",
+    data: updatedInformationDB,
+  });
+};
+
+// API endpoint to remove a withdraw number by ID
+exports.removeWithdrawNumber = async (req, res, next) => {
+  const { withdrawNumberId } = req.params;
+
+  // Find the informationDB document, assuming you have a method for it
+  const informationDB = await UploadAdmin.findOne();
+
+  if (!informationDB) {
+    return next(new AppError("Information Database Not Found!", 404));
+  }
+
+  // Find the index of the withdraw number to remove
+  const numberIndex = informationDB.withdraw_numbers.findIndex(
+    (number) => number.id === withdrawNumberId
+  );
+
+  if (numberIndex === -1) {
+    return next(new AppError("Withdraw Number Not Found!", 404));
+  }
+
+  // Remove the withdraw number from the array
+  informationDB.withdraw_numbers.splice(numberIndex, 1);
+
+  // Save the updated document
+  const updatedInformationDB = await informationDB.save();
+
+  res.status(200).json({
+    message: "Withdraw Number Removed",
     data: updatedInformationDB,
   });
 };
@@ -329,6 +389,38 @@ exports.uploadAdsImage = async (req, res, next) => {
 
   res.status(200).json({
     message: "Image Added",
+    data: updatedInformationDB,
+  });
+};
+
+// API endpoint to remove a image number by ID
+exports.removeAdImage = async (req, res, next) => {
+  const { imageId } = req.params;
+
+  // Find the informationDB document, assuming you have a method for it
+  const informationDB = await UploadAdmin.findOne();
+
+  if (!informationDB) {
+    return next(new AppError("Information Database Not Found!", 404));
+  }
+
+  // Find the index of the withdraw number to remove
+  const numberIndex = informationDB.ad_images.findIndex(
+    (img) => img.id === imageId
+  );
+
+  if (numberIndex === -1) {
+    return next(new AppError("Image Not Found!", 404));
+  }
+
+  // Remove the withdraw number from the array
+  informationDB.ad_images.splice(numberIndex, 1);
+
+  // Save the updated document
+  const updatedInformationDB = await informationDB.save();
+
+  res.status(200).json({
+    message: "Ad Image Removed",
     data: updatedInformationDB,
   });
 };

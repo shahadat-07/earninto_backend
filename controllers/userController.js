@@ -545,7 +545,7 @@ exports.adGameRevenue = catchAsync(async (req, res) => {
   };
 
   // Update the winning_team field in predictionInformations
-  console.log(predictionInformations, winning_team, "541");
+  // console.log(predictionInformations, winning_team, "541");
   predictionInformations.winning_team = winning_team;
   predictionInformations.isApiCalled = true;
   // Update user's transaction history and games_wallet

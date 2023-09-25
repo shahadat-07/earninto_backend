@@ -26,6 +26,7 @@ const gamePredictionSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  teams: [],
 });
 
 const userSchema = new mongoose.Schema({

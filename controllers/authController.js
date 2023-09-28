@@ -237,3 +237,14 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
     message: "Successfully updated the password!",
   });
 });
+
+// Find all the users
+exports.getAllUsers = catchAsync(async (req, res) => {
+  // Query the database to get all users
+  const users = await User.find();
+
+  res.status(200).json({
+    status: "success",
+    data: users,
+  });
+});

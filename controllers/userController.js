@@ -224,14 +224,16 @@ exports.deposit = catchAsync(async (req, res, next) => {
 
         res.status(200).json({
           success: true,
-          message: "Deposit Request Sent Successfully!",
+          message:
+            "Your Deposit request submitted. Your wallet will be credited within 24 hours.",
           data: updatedUser,
         });
       }
 
       res.status(200).json({
         success: true,
-        message: "Deposit Request Sent Successfully!",
+        message:
+          "Your Deposit request submitted. Your wallet will be credited within 24 hours.",
       });
     } else {
       // console.log("Not the first deposit for the user.");
@@ -241,7 +243,8 @@ exports.deposit = catchAsync(async (req, res, next) => {
 
       res.status(200).json({
         success: true,
-        message: "Deposit Request Sent Successfully!",
+        message:
+          "Your Deposit request submitted. Your wallet will be credited within 24 hours.",
         data: updatedUser,
       });
     }
@@ -310,7 +313,8 @@ exports.withdraw = catchAsync(async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      message: "Withdraw Request Sent Successfully!",
+      message:
+        "Your Withdraw Request submitted. You will get your money within 24 hours",
       data: updatedUser,
     });
   }

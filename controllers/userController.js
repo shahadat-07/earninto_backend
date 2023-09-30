@@ -641,10 +641,12 @@ exports.calculateAdsRevenue = catchAsync(async (req, res) => {
   }
 
   const ads_percentage_rate = informationDB.ads_percentage_rate;
+  const ads_length = informationDB.ad_images.length;
+  // console.log("Total ads is", ads_length);
 
   const ad_revenue = (
     (user_ads_wallet_balance * (ads_percentage_rate / 100)) /
-    10
+    ads_length
   ).toFixed(2);
 
   const currentDate = new Date();

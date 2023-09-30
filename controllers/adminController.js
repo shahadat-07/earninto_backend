@@ -6,6 +6,24 @@ const UploadAdmin = require("../models/AdminUploadModel");
 const jwt = require("jsonwebtoken");
 const uuid = require("uuid");
 
+function getDate() {
+  const currentDate = new Date();
+
+  const day = currentDate.getDate();
+  const monthIndex = currentDate.getMonth() + 1;
+  const year = currentDate.getFullYear();
+  const formattedDay = day <= 9 ? `0${day}` : day;
+  const formattedDate = `${formattedDay}-${monthIndex}-${year}`;
+  return formattedDate;
+}
+
+function getTime() {
+  var today = new Date();
+  var time =
+    today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+  return time;
+}
+
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
@@ -573,23 +591,36 @@ exports.approveTransaction = catchAsync(async (req, res, next) => {
   //  for value "NaN" (type number) at path "ads_wallet.balance"
 
   let newTransactionStatus;
+  let newNotfication;
 
   if (action === "approve") {
     newTransactionStatus = "approved";
 
     if (transaction.transaction_type === "deposit") {
+      newNotfication = {
+        date: getDate(),
+        time: getTime(),
+        message: `Your deposit request of $${transaction.amount} has been approved!`,
+      };
       if (transaction.selected_wallet === "games_wallet") {
         user.games_wallet.balance += parseInt(transaction.amount);
       } else if (transaction.selected_wallet === "ads_wallet") {
         user.ads_wallet.balance += parseInt(transaction.amount);
       }
     } else if (transaction.transaction_type === "withdraw") {
+      newNotfication = {
+        date: getDate(),
+        time: getTime(),
+        message: `Your withdraw request of $${transaction.amount} has been approved!`,
+      };
       if (transaction.selected_wallet === "games_wallet") {
         user.games_wallet.balance -= parseInt(transaction.amount);
       } else if (transaction.selected_wallet === "ads_wallet") {
         user.ads_wallet.balance -= parseInt(transaction.amount);
       }
     }
+
+    user.notifications.push(newNotfication);
 
     await user.save();
   } else if (action === "reject") {

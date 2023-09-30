@@ -16,8 +16,8 @@ const handleCastErrorDB = (err) => {
 };
 
 const handleDuplicateFieldsDB = (err) => {
-  const duplicateValue = err.keyValue['userinformation.username'];
-  const message = `Duplicate field value: ${duplicateValue}. Please use another value!`;
+  const duplicateValue = err.keyValue["userinformation.username"];
+  const message = `This username is already used. Try another.`;
   return new AppError(message, 400);
 };
 

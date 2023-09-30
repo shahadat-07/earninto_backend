@@ -73,6 +73,7 @@ const userSchema = new mongoose.Schema({
       default: 0,
     },
   },
+  notifications: [],
   trackAdRevenue: [],
   trackAdsView: [],
   todaysEarning: {},

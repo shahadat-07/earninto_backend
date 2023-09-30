@@ -67,7 +67,7 @@ async function isShortIDUnique(shortID) {
 exports.signup = catchAsync(async (req, res, next) => {
   // console.log(req.body);
   const { name, username, phonenumber, referralID, password } = req.body;
-  console.log(name, username, phonenumber, referralID, password);
+  // console.log(name, username, phonenumber, referralID, password);
 
   // Generate a random short ID with a maximum length of 5 characters
   const shortID = await generateUniqueShortID();
@@ -90,6 +90,7 @@ exports.signup = catchAsync(async (req, res, next) => {
       balance: 0,
       life_time_ads_revenue: 0,
     },
+    notifications: [],
     trackAdsView: [],
     trackAdRevenue: [],
     todaysEarning: {

@@ -6,24 +6,6 @@ const UploadAdmin = require("../models/AdminUploadModel");
 const jwt = require("jsonwebtoken");
 const uuid = require("uuid");
 
-function getDate() {
-  const currentDate = new Date();
-
-  const day = currentDate.getDate();
-  const monthIndex = currentDate.getMonth() + 1;
-  const year = currentDate.getFullYear();
-  const formattedDay = day <= 9 ? `0${day}` : day;
-  const formattedDate = `${formattedDay}-${monthIndex}-${year}`;
-  return formattedDate;
-}
-
-function getTime() {
-  var today = new Date();
-  var time =
-    today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-  return time;
-}
-
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
@@ -595,6 +577,24 @@ exports.approveTransaction = catchAsync(async (req, res, next) => {
 
   if (action === "approve") {
     newTransactionStatus = "approved";
+
+    function getDate() {
+      const currentDate = new Date();
+
+      const day = currentDate.getDate();
+      const monthIndex = currentDate.getMonth() + 1;
+      const year = currentDate.getFullYear();
+      const formattedDay = day <= 9 ? `0${day}` : day;
+      const formattedDate = `${formattedDay}-${monthIndex}-${year}`;
+      return formattedDate;
+    }
+
+    function getTime() {
+      var today = new Date();
+      var time =
+        today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+      return time;
+    }
 
     if (transaction.transaction_type === "deposit") {
       newNotfication = {

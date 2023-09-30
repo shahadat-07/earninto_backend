@@ -6,7 +6,7 @@ const UploadAdmin = require("../models/AdminUploadModel");
 const schedule = require("node-schedule");
 const nodemailer = require("nodemailer");
 const Mailgen = require("mailgen");
-// Schedule the job to run at 11:59 PM daily and Send 5% commission to refferer User
+// Schedule the job to run at 11:59 PM daily and Send 3% commission to refferer User
 const job = schedule.scheduleJob("59 23 * * *", async function () {
   try {
     const users = await User.find({});
@@ -27,6 +27,8 @@ const job = schedule.scheduleJob("59 23 * * *", async function () {
           "userinformation.referralID": referrerUserID,
         });
 
+        // console.log("30, the referrerUser is", referrerUser);
+
         if (!referrerUser) {
           console.log("Somehow referrerUser is missing!");
         }
@@ -35,9 +37,11 @@ const job = schedule.scheduleJob("59 23 * * *", async function () {
           (user?.todaysEarning?.earning_from_games +
             user?.todaysEarning?.earning_from_ads +
             user?.todaysEarning?.earning_from_referral) *
-          0.05
-        ).toFixed(2); //5% of the users daily earnings
+          0.03
+        ).toFixed(2); //3% of the users daily earnings
         const RefferBonus = parseFloat(calculateRefferBonus);
+
+        console.log("Bonus should be go", RefferBonus);
 
         const newTransaction = {
           date: formattedDate,
@@ -94,9 +98,22 @@ const job = schedule.scheduleJob("59 23 * * *", async function () {
           user.trackAdRevenue.splice(indexToRemove, 1);
         }
 
+        // console.log("The user is", user);
+
         await user.save();
       } else {
         console.log("This user has not a referel id");
+        await User.findOneAndUpdate(
+          { _id: user._id },
+          {
+            $set: {
+              "todaysEarning.earning_from_ads": 0,
+              "todaysEarning.earning_from_games": 0,
+              "todaysEarning.earning_from_referral": 0,
+            },
+          },
+          { new: true }
+        );
       }
     }
   } catch (error) {

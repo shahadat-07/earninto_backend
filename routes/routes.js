@@ -11,7 +11,7 @@ router.post("/login", authController.login);
 router.get("/logout", authController.logout);
 router.get("/currentUser/:userId", authController.currentUser);
 router.patch("/updateMyPassword/:id", authController.updatePassword);
-
+router.put("/marked-as-seen", userController.MarkAllNotificationsAsSeen);
 router.post("/deposit", authController.protect, userController.deposit);
 router.post("/withdraw", authController.protect, userController.withdraw);
 router.post(

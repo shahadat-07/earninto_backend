@@ -596,10 +596,14 @@ exports.approveTransaction = catchAsync(async (req, res, next) => {
       return time;
     }
 
+    const notificationID = uuid.v4();
+
     if (transaction.transaction_type === "deposit") {
       newNotfication = {
+        id: notificationID,
         date: getDate(),
         time: getTime(),
+        isSeen: false,
         message: `Your deposit request of $${transaction.amount} has been approved!`,
       };
       if (transaction.selected_wallet === "games_wallet") {
@@ -609,6 +613,7 @@ exports.approveTransaction = catchAsync(async (req, res, next) => {
       }
     } else if (transaction.transaction_type === "withdraw") {
       newNotfication = {
+        id: notificationID,
         date: getDate(),
         time: getTime(),
         message: `Your withdraw request of $${transaction.amount} has been approved!`,

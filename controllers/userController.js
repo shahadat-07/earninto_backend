@@ -773,3 +773,29 @@ exports.getSelectedTeams = catchAsync(async (req, res) => {
 
   res.status(200).json(selectedGames);
 });
+
+exports.MarkAllNotificationsAsSeen = catchAsync(async (req, res, next) => {
+  const userID = req.body.userID;
+
+  // Find the user and update all notifications to isSeen: true
+  const updatedUser = await User.findOneAndUpdate(
+    { _id: userID },
+    {
+      $set: {
+        "notifications.$[].isSeen": true, // Update isSeen field for all notifications
+      },
+    },
+    { new: true } // Return the updated user document
+  );
+
+  if (!updatedUser) {
+    return next(new AppError("User not found", 404));
+  }
+
+  // Respond with a success message or appropriate response
+  res.status(200).json({
+    message: "All notifications marked as seen",
+    data: updatedUser,
+  });
+});
+

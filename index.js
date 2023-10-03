@@ -1,5 +1,8 @@
 const dotenv = require("dotenv");
+dotenv.config(); 
+
 const mongoose = require("mongoose");
+const app = require("./app");
 
 process.on("uncaughtException", (err) => {
   console.log("UNCAUGHT EXCEPTION! 💥 Shutting down...");
@@ -7,12 +10,10 @@ process.on("uncaughtException", (err) => {
   process.exit(1);
 });
 
-dotenv.config({ path: "./config.env" });
-const app = require("./app");
-
 mongoose
   .connect(process.env.mongoURI, {
     useNewUrlParser: true,
+    useUnifiedTopology: true,
   })
   .then(() => console.log("DB connection successful!"));
 

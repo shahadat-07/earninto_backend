@@ -10,6 +10,8 @@ const hpp = require("hpp");
 const AppError = require("./utils/appError");
 const globalErrorHandler = require("./controllers/errorController");
 const routes = require("./routes/routes");
+// const dotenv = require("dotenv");
+// dotenv.config(); 
 
 const app = express();
 

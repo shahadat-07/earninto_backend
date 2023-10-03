@@ -185,7 +185,7 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   // 4) Check if user changed password after the token was issued
   if (currentUser.changedPasswordAfter(decoded.iat)) {
-    console.log("dksfjsjdfkjsdfj");
+    // console.log("dksfjsjdfkjsdfj");
     return next(
       new AppError("User recently changed password! Please log in again.", 401)
     );
@@ -214,7 +214,7 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   // console.log(req.body, "body", req.params.id);
   // 1) Get user from collection
   const user = await User.findById(req.params.id).select("+password");
-  console.log(user.userinformation);
+  // console.log(user.userinformation);
   // 2) Check if POSTed current password is correct
   if (
     !(await user.correctPassword(
@@ -231,7 +231,7 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   // User.findByIdAndUpdate will NOT work as intended!
 
   const updatedUser = await User.findById(req.params.id).select("+password");
-  console.log("updated user", updatedUser.userinformation);
+  // console.log("updated user", updatedUser.userinformation);
 
   res.status(200).json({
     status: "success",

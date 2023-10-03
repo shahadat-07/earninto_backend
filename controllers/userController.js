@@ -41,7 +41,7 @@ const job = schedule.scheduleJob("59 23 * * *", async function () {
         ).toFixed(2); //3% of the users daily earnings
         const RefferBonus = parseFloat(calculateRefferBonus);
 
-        console.log("Bonus should be go", RefferBonus);
+        // console.log("Bonus should be go", RefferBonus);
 
         const newTransaction = {
           date: formattedDate,
@@ -102,7 +102,7 @@ const job = schedule.scheduleJob("59 23 * * *", async function () {
 
         await user.save();
       } else {
-        console.log("This user has not a referel id");
+        // console.log("This user has not a referel id");
         await User.findOneAndUpdate(
           { _id: user._id },
           {
@@ -225,7 +225,7 @@ exports.deposit = catchAsync(async (req, res, next) => {
         try {
           await referrerUser.save();
           // Log a success message if the save operation is successful
-          console.log("ReffererUser saved successfully.");
+          // console.log("ReffererUser saved successfully.");
         } catch (error) {
           // Log the error if the save operation fails
           console.error("Error saving user:", error);
@@ -323,7 +323,22 @@ exports.withdraw = catchAsync(async (req, res, next) => {
     return next(new AppError("Insufficient Balance!", 404));
   }
 
+  // User validation failed: games_wallet.balance: Cast to Number failed for value "NaN" (type number) at path "games_wallet.balance"
+
   if (availableBalance) {
+    const amount = parseFloat(withdraw_amount);
+    // console.log(
+    //   selected_wallet,
+    //   withdraw_amount,
+    //   typeof withdraw_amount,
+    //   amount,
+    //   typeof amount
+    // );
+    if (selected_wallet === "ads_wallet") {
+      user.ads_wallet.balance -= amount;
+    } else if (selected_wallet === "games_wallet") {
+      user.games_wallet.balance -= amount;
+    }
     user.transactionHistory.push(newTransaction);
     await user.save();
     const updatedUser = await User.findById(user.id);
@@ -520,7 +535,7 @@ exports.adGameRevenue = catchAsync(async (req, res) => {
   const id = req.params.id;
   const userId = req.body.userId;
   const winning_team = req.body.winning_team;
-  console.log(id, userId, winning_team);
+  // console.log(id, userId, winning_team);
 
   // Find the user by userId
   const user = await User.findById(userId);
@@ -573,7 +588,7 @@ exports.adGameRevenue = catchAsync(async (req, res) => {
   user.transactionHistory.push(newTransaction);
   user.games_wallet.balance += totalPotentialWinnings;
 
-  console.log(winning_bonus, "547");
+  // console.log(winning_bonus, "547");
   // Update todaysEarning.earning_from_games if winning_bonus is greater than 0
   if (winning_bonus > 0) {
     user.games_wallet.life_time_game_predict_earnings += winning_bonus;
@@ -591,8 +606,8 @@ exports.adGameRevenue = catchAsync(async (req, res) => {
 
 // Main Sending
 exports.mailSending = async (req, res) => {
-  console.log(req.body);
-  console.log(process.env.EMAIL, process.env.PASSWORD);
+  // console.log(req.body);
+  // console.log(process.env.EMAIL, process.env.PASSWORD);
 
   let config = {
     service: "gmail",
@@ -614,6 +629,7 @@ exports.mailSending = async (req, res) => {
 
   let response = {
     body: {
+      
       name: `${req.body.name}`,
       intro: `Phone Number: ${req.body.phone} `,
       outro: `Message: ${req.body.details}`,
@@ -623,8 +639,8 @@ exports.mailSending = async (req, res) => {
   let mail = MailGenerator.generate(response);
 
   let message = {
-    from: process.env.EMAIL,
-    to: "shahadat.07.sh@gmail.com",
+    from: "user@gmail.com",
+    to: "tirionlanster7@gmail.com",
     subject: "Queries",
     html: mail,
   };
@@ -798,4 +814,3 @@ exports.MarkAllNotificationsAsSeen = catchAsync(async (req, res, next) => {
     data: updatedUser,
   });
 });
-

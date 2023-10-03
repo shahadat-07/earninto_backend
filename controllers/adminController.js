@@ -578,31 +578,26 @@ exports.approveTransaction = catchAsync(async (req, res, next) => {
   if (action === "approve") {
     newTransactionStatus = "approved";
 
-    function getDate() {
-      const currentDate = new Date();
+    const currentDate = new Date();
 
-      const day = currentDate.getDate();
-      const monthIndex = currentDate.getMonth() + 1;
-      const year = currentDate.getFullYear();
-      const formattedDay = day <= 9 ? `0${day}` : day;
-      const formattedDate = `${formattedDay}-${monthIndex}-${year}`;
-      return formattedDate;
-    }
+    const day = currentDate.getDate();
+    const monthIndex = currentDate.getMonth() + 1;
+    const year = currentDate.getFullYear();
+    const formattedDay = day <= 9 ? `0${day}` : day;
+    const formattedDate = `${formattedDay}-${monthIndex}-${year}`;
 
-    function getTime() {
-      var today = new Date();
-      var time =
-        today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-      return time;
-    }
+    var today = new Date();
+    var time =
+      today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
 
     const notificationID = uuid.v4();
 
     if (transaction.transaction_type === "deposit") {
+      // console.log(getDate(), getTime(), "602 date and time");
       newNotfication = {
         id: notificationID,
-        date: getDate(),
-        time: getTime(),
+        date: formattedDate,
+        time,
         isSeen: false,
         message: `Your deposit request of $${transaction.amount} has been approved!`,
       };
@@ -614,22 +609,63 @@ exports.approveTransaction = catchAsync(async (req, res, next) => {
     } else if (transaction.transaction_type === "withdraw") {
       newNotfication = {
         id: notificationID,
-        date: getDate(),
-        time: getTime(),
+        date: formattedDate,
+        time,
         message: `Your withdraw request of $${transaction.amount} has been approved!`,
       };
-      if (transaction.selected_wallet === "games_wallet") {
-        user.games_wallet.balance -= parseInt(transaction.amount);
-      } else if (transaction.selected_wallet === "ads_wallet") {
-        user.ads_wallet.balance -= parseInt(transaction.amount);
-      }
+      // if (transaction.selected_wallet === "games_wallet") {
+      //   user.games_wallet.balance -= parseInt(transaction.amount);
+      // } else if (transaction.selected_wallet === "ads_wallet") {
+      //   user.ads_wallet.balance -= parseInt(transaction.amount);
+      // }
     }
 
     user.notifications.push(newNotfication);
 
     await user.save();
   } else if (action === "reject") {
+    const notificationID = uuid.v4();
+
+    const currentDate = new Date();
+
+    const day = currentDate.getDate();
+    const monthIndex = currentDate.getMonth() + 1;
+    const year = currentDate.getFullYear();
+    const formattedDay = day <= 9 ? `0${day}` : day;
+    const formattedDate = `${formattedDay}-${monthIndex}-${year}`;
+
+    var today = new Date();
+    var time =
+      today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+
     newTransactionStatus = "rejected";
+
+    if (transaction.transaction_type === "deposit") {
+      newNotfication = {
+        id: notificationID,
+        date: formattedDate,
+        time,
+        isSeen: false,
+        message: `Your deposit request of $${transaction.amount} has been rejected!`,
+      };
+    } else if (transaction.transaction_type === "withdraw") {
+      newNotfication = {
+        id: notificationID,
+        date: formattedDate,
+        time,
+        isSeen: false,
+        message: `Your withdraw request of $${transaction.amount} has been rejected and $${transaction.amount} has been returned to your wallet`,
+      };
+
+      if (transaction.selected_wallet === "games_wallet") {
+        user.games_wallet.balance += parseInt(transaction.amount);
+      } else if (transaction.selected_wallet === "ads_wallet") {
+        user.ads_wallet.balance += parseInt(transaction.amount);
+      }
+    }
+    user.notifications.push(newNotfication);
+
+    await user.save();
   }
 
   const updatedTransaction = user.transactionHistory.map((t) =>
